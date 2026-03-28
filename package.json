@@ -1,0 +1,10 @@
+{
+  "name": "cricket-bat-art",
+  "version": "1.0.0",
+  "description": "A masterpiece SVG cricket bat art — pure static HTML.",
+  "scripts": {
+    "build": "echo 'No build required'",
+    "start": "npx serve ."
+  },
+  "license": "MIT"
+}
