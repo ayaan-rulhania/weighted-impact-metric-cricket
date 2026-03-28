@@ -1,119 +1,876 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cricket SVG Animation</title>
-    <style>
-        body {
-            background-color: #121212;
-            color: white;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 3em;
-            background: linear-gradient(270deg, #ff00cc, #3333ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradient 3s ease infinite;
-        }
-
-        @keyframes gradient {
-            0% {background-position: 0%;}
-            50% {background-position: 100%;}
-            100% {background-position: 0%;}
-        }
-
-        #pong {
-            display: block;
-            margin: 0 auto;
-            background: #121212;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cricket Bat — Masterpiece</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: radial-gradient(ellipse at 50% 30%, #1a1208 0%, #0a0804 60%, #000000 100%);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    svg#bat {
+      filter: drop-shadow(0 0 80px rgba(210,160,60,0.45)) drop-shadow(0 0 200px rgba(180,120,20,0.18));
+      animation: float 5s ease-in-out infinite;
+      max-height: 98vh;
+    }
+    @keyframes float {
+      0%   { transform: translateY(0px) rotate(-1deg); }
+      50%  { transform: translateY(-18px) rotate(1deg); }
+      100% { transform: translateY(0px) rotate(-1deg); }
+    }
+  </style>
 </head>
 <body>
-    <h1>SVG Cricket Animation</h1>
-    <svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-        <!-- SVG content for cricket animation goes here -->
-        <circle cx="400" cy="300" r="50" fill="red" />
-        <!-- Additional SVG elements to create animation -->
-    </svg>
 
-    <canvas id="pong" width="800" height="400"></canvas>
-    <script>
-        const canvas = document.getElementById('pong');
-        const context = canvas.getContext('2d');
+<svg id="bat" xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 520 1100" width="340">
+  <defs>
 
-        // Create the pong game elements
-        const paddleWidth = 10;
-        const paddleHeight = 100;
-        const ballSize = 10;
-        let player1Y = 250;
-        let player2Y = 250;
-        let ballX = 400;
-        let ballY = 200;
-        let ballSpeedX = 5;
-        let ballSpeedY = 5;
+    <!-- ═══════════════════════════════════════════════
+         GRADIENTS
+    ═══════════════════════════════════════════════ -->
 
-        // Game loop
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
+    <!-- Blade main face gradient – warm willow honey -->
+    <linearGradient id="bladeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#3b1f06"/>
+      <stop offset="6%"   stop-color="#6b3a10"/>
+      <stop offset="14%"  stop-color="#c17f3a"/>
+      <stop offset="22%"  stop-color="#e8b465"/>
+      <stop offset="30%"  stop-color="#f5d28a"/>
+      <stop offset="38%"  stop-color="#fce9b2"/>
+      <stop offset="46%"  stop-color="#ffffff"/>
+      <stop offset="50%"  stop-color="#fef5d8"/>
+      <stop offset="54%"  stop-color="#fce9b2"/>
+      <stop offset="62%"  stop-color="#f5d28a"/>
+      <stop offset="70%"  stop-color="#e8b465"/>
+      <stop offset="78%"  stop-color="#c17f3a"/>
+      <stop offset="86%"  stop-color="#8a4e1a"/>
+      <stop offset="94%"  stop-color="#5a2e08"/>
+      <stop offset="100%" stop-color="#2d1204"/>
+    </linearGradient>
 
-        // Update game state
-        function update() {
-            ballX += ballSpeedX;
-            ballY += ballSpeedY;
+    <!-- Blade edge / spine gradient -->
+    <linearGradient id="spineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#2a1205"/>
+      <stop offset="40%"  stop-color="#7a4420"/>
+      <stop offset="60%"  stop-color="#9e5c28"/>
+      <stop offset="100%" stop-color="#3c1a08"/>
+    </linearGradient>
 
-            // Wall collision
-            if (ballY <= 0 || ballY >= canvas.height) {
-                ballSpeedY = -ballSpeedY;
-            }
+    <!-- Handle gradient -->
+    <linearGradient id="handleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#1a0e05"/>
+      <stop offset="18%"  stop-color="#2c1608"/>
+      <stop offset="35%"  stop-color="#3f2010"/>
+      <stop offset="50%"  stop-color="#5a3018"/>
+      <stop offset="65%"  stop-color="#3f2010"/>
+      <stop offset="82%"  stop-color="#2c1608"/>
+      <stop offset="100%" stop-color="#1a0e05"/>
+    </linearGradient>
 
-            // Paddle collision
-            if (ballX <= paddleWidth && ballY >= player1Y && ballY <= player1Y + paddleHeight) {
-                ballSpeedX = -ballSpeedX;
-            } else if (ballX >= canvas.width - paddleWidth && ballY >= player2Y && ballY <= player2Y + paddleHeight) {
-                ballSpeedX = -ballSpeedX;
-            }
+    <!-- Grip wrap gradient (dark leather) -->
+    <linearGradient id="gripGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#0d0604"/>
+      <stop offset="20%"  stop-color="#1e110a"/>
+      <stop offset="40%"  stop-color="#2a180e"/>
+      <stop offset="50%"  stop-color="#351e12"/>
+      <stop offset="60%"  stop-color="#2a180e"/>
+      <stop offset="80%"  stop-color="#1e110a"/>
+      <stop offset="100%" stop-color="#0d0604"/>
+    </linearGradient>
 
-            // Reset ball if it goes off screen
-            if (ballX < 0 || ballX > canvas.width) {
-                ballX = canvas.width / 2;
-                ballY = canvas.height / 2;
-                ballSpeedX = -ballSpeedX;
-            }
-        }
+    <!-- Shoulder gradient -->
+    <linearGradient id="shoulderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#3a1e08"/>
+      <stop offset="25%"  stop-color="#a0642a"/>
+      <stop offset="50%"  stop-color="#d4924e"/>
+      <stop offset="75%"  stop-color="#a0642a"/>
+      <stop offset="100%" stop-color="#3a1e08"/>
+    </linearGradient>
 
-        // Draw everything
-        function draw() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.fillStyle = 'white';
-            context.fillRect(0, player1Y, paddleWidth, paddleHeight);
-            context.fillRect(canvas.width - paddleWidth, player2Y, paddleWidth, paddleHeight);
-            context.fillStyle = 'red';
-            context.beginPath();
-            context.arc(ballX, ballY, ballSize, 0, Math.PI * 2, false);
-            context.fill();
-        }
+    <!-- Toe gradient -->
+    <linearGradient id="toeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#2e1506"/>
+      <stop offset="30%"  stop-color="#8a5018"/>
+      <stop offset="50%"  stop-color="#c07830"/>
+      <stop offset="70%"  stop-color="#8a5018"/>
+      <stop offset="100%" stop-color="#2e1506"/>
+    </linearGradient>
 
-        // Mouse movement
-        canvas.addEventListener('mousemove', (event) => {
-            const mouseY = event.clientY - canvas.getBoundingClientRect().top;
-            player1Y = mouseY - paddleHeight / 2;
-            // Constrain the paddle
-            if (player1Y < 0) player1Y = 0;
-            if (player1Y > canvas.height - paddleHeight) player1Y = canvas.height - paddleHeight;
-        });
+    <!-- Gold accent gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#7a5a10"/>
+      <stop offset="30%"  stop-color="#d4a830"/>
+      <stop offset="50%"  stop-color="#f5d060"/>
+      <stop offset="70%"  stop-color="#d4a830"/>
+      <stop offset="100%" stop-color="#7a5a10"/>
+    </linearGradient>
 
-        gameLoop(); // Start the game loop
-    </script>
+    <!-- Grip band gradient (red stripe) -->
+    <linearGradient id="gripRedGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#3a0808"/>
+      <stop offset="30%"  stop-color="#8c2020"/>
+      <stop offset="50%"  stop-color="#c03030"/>
+      <stop offset="70%"  stop-color="#8c2020"/>
+      <stop offset="100%" stop-color="#3a0808"/>
+    </linearGradient>
+
+    <!-- Swell highlight -->
+    <radialGradient id="swellHighlight" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="rgba(255,255,255,0.22)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+
+    <!-- Toe cap sheen -->
+    <radialGradient id="toeSheen" cx="50%" cy="30%" r="55%">
+      <stop offset="0%"   stop-color="rgba(255,240,180,0.18)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+    </radialGradient>
+
+    <!-- Background glow -->
+    <radialGradient id="bgGlow" cx="50%" cy="42%" r="48%">
+      <stop offset="0%"   stop-color="rgba(210,160,60,0.13)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+    </radialGradient>
+
+    <!-- ═══════════════════════════════════════════════
+         FILTERS
+    ═══════════════════════════════════════════════ -->
+
+    <!-- Overall bat shadow -->
+    <filter id="batShadow" x="-20%" y="-5%" width="140%" height="110%">
+      <feDropShadow dx="12" dy="20" stdDeviation="18" flood-color="#000" flood-opacity="0.85"/>
+    </filter>
+
+    <!-- Grain texture filter -->
+    <filter id="woodGrain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65 0.015" numOctaves="4" seed="3" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
+      <feBlend in="SourceGraphic" in2="grayNoise" mode="soft-light" result="blended"/>
+      <feComposite in="blended" in2="SourceGraphic" operator="in"/>
+    </filter>
+
+    <!-- Grip texture -->
+    <filter id="gripTexture" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="turbulence" baseFrequency="0.9 0.08" numOctaves="3" seed="7" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
+      <feBlend in="SourceGraphic" in2="grayNoise" mode="overlay" result="blended"/>
+      <feComposite in="blended" in2="SourceGraphic" operator="in"/>
+    </filter>
+
+    <!-- Soft inner glow for blade face -->
+    <filter id="faceGlow" x="-10%" y="-2%" width="120%" height="104%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <!-- ═══════════════════════════════════════════════
+         CLIP PATHS
+    ═══════════════════════════════════════════════ -->
+    <clipPath id="bladeClip">
+      <path d="
+        M210,88 C210,88 178,100 162,130 C146,160 140,200 140,250
+        C140,320 142,400 148,480
+        C152,530 158,570 166,600
+        C174,632 184,655 196,668
+        C208,681 222,686 260,686
+        C298,686 312,681 324,668
+        C336,655 346,632 354,600
+        C362,570 368,530 372,480
+        C378,400 380,320 380,250
+        C380,200 374,160 358,130
+        C342,100 310,88 310,88 Z
+      "/>
+    </clipPath>
+
+    <!-- ═══════════════════════════════════════════════
+         PATTERNS — wood grain lines
+    ═══════════════════════════════════════════════ -->
+    <pattern id="grainPattern" x="0" y="0" width="2" height="100" patternUnits="userSpaceOnUse">
+      <rect width="0.3" height="100" fill="rgba(0,0,0,0.08)"/>
+      <rect x="0.8" width="0.15" height="100" fill="rgba(255,255,255,0.06)"/>
+      <rect x="1.4" width="0.2" height="100" fill="rgba(0,0,0,0.05)"/>
+    </pattern>
+
+    <!-- grip diagonal wrap pattern -->
+    <pattern id="gripPattern" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="24" height="24" fill="transparent"/>
+      <rect y="0"  width="24" height="3"  fill="rgba(0,0,0,0.35)"/>
+      <rect y="3"  width="24" height="0.8" fill="rgba(255,255,255,0.06)"/>
+      <rect y="6"  width="24" height="3"  fill="rgba(0,0,0,0.3)"/>
+      <rect y="9"  width="24" height="0.6" fill="rgba(255,255,255,0.04)"/>
+      <rect y="12" width="24" height="3"  fill="rgba(0,0,0,0.32)"/>
+      <rect y="15" width="24" height="0.7" fill="rgba(255,255,255,0.05)"/>
+      <rect y="18" width="24" height="3"  fill="rgba(0,0,0,0.28)"/>
+      <rect y="21" width="24" height="0.5" fill="rgba(255,255,255,0.04)"/>
+    </pattern>
+
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       BACKGROUND ATMOSPHERE GLOW
+  ══════════════════════════════════════════════════════════════════════ -->
+  <ellipse cx="260" cy="460" rx="220" ry="380" fill="url(#bgGlow)"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       ██████╗  █████╗ ████████╗    ██████╗  ██████╗ ██████╗ ██╗   ██╗
+       ██╔══██╗██╔══██╗╚══██╔══╝    ██╔══██╗██╔═══██╗██╔══██╗╚██╗ ██╔╝
+       ██████╔╝███████║   ██║       ██████╔╝██║   ██║██║  ██║ ╚████╔╝
+       ██╔══██╗██╔══██║   ██║       ██╔══██╗██║   ██║██║  ██║  ╚██╔╝
+       ██████╔╝██║  ██║   ██║       ██████╔╝╚██████╔╝██████╔╝   ██║
+       ╚═════╝ ╚═╝  ╚═╝   ╚═╝       ╚═════╝  ╚═════╝ ╚═════╝   ╚═╝
+  ═══════════════════════════════════════════════════════════════════ -->
+
+  <g filter="url(#batShadow)">
+
+  <!-- ─────────────────────────────────────────
+       BLADE BACK (side profile / edge / spine)
+  ───────────────────────────────────────── -->
+  <path d="
+    M308,88 C316,96 332,108 342,130
+    C354,156 360,190 361,238
+    C362,290 360,360 358,440
+    C356,500 352,550 346,584
+    C340,616 332,642 322,658
+    C314,671 304,680 290,684
+    C280,687 272,688 268,688
+    C272,688 282,687 292,683
+    C304,678 312,669 320,656
+    C330,641 338,617 344,584
+    C350,550 354,500 356,440
+    C358,360 360,290 359,238
+    C358,190 352,156 340,130
+    C330,108 314,96 308,88 Z
+  " fill="url(#spineGrad)" opacity="0.9"/>
+
+  <!-- back face subtle -->
+  <path d="
+    M210,88 C210,88 178,100 162,130 C146,160 140,200 140,250
+    C140,320 142,400 148,480
+    C152,530 158,570 166,600
+    C174,632 184,655 196,668
+    C208,681 222,686 260,686
+    C274,686 284,685 292,683
+    C280,682 268,680 258,678
+    C240,674 228,666 218,652
+    C206,637 196,614 188,582
+    C180,550 174,500 170,440
+    C164,360 162,290 163,238
+    C164,190 170,156 182,130
+    C192,108 208,96 210,88 Z
+  " fill="#1a0c04" opacity="0.7"/>
+
+  <!-- ─────────────────────────────────────────
+       MAIN BLADE FACE
+  ───────────────────────────────────────── -->
+  <path id="bladeFace" d="
+    M210,88 C210,88 178,100 162,130 C146,160 140,200 140,250
+    C140,320 142,400 148,480
+    C152,530 158,570 166,600
+    C174,632 184,655 196,668
+    C208,681 222,686 260,686
+    C298,686 312,681 324,668
+    C336,655 346,632 354,600
+    C362,570 368,530 372,480
+    C378,400 380,320 380,250
+    C380,200 374,160 358,130
+    C342,100 310,88 310,88
+    C300,84 282,82 260,82
+    C238,82 220,84 210,88 Z
+  " fill="url(#bladeGrad)" filter="url(#woodGrain)"/>
+
+  <!-- ─────────────────────────────────────────
+       WOOD GRAIN — vertical lines (100s of them)
+  ───────────────────────────────────────── -->
+  <g clip-path="url(#bladeClip)" opacity="0.72">
+    <!-- Every grain line individually placed for that hand-crafted feel -->
+    <line x1="150" y1="90"  x2="148" y2="688" stroke="#5a3010" stroke-width="0.25"/>
+    <line x1="153" y1="90"  x2="151" y2="688" stroke="#3a1a06" stroke-width="0.18"/>
+    <line x1="156" y1="90"  x2="154" y2="688" stroke="#c07838" stroke-width="0.3"/>
+    <line x1="158" y1="90"  x2="156" y2="688" stroke="#6a3a14" stroke-width="0.2"/>
+    <line x1="160" y1="90"  x2="158" y2="688" stroke="#e8a050" stroke-width="0.22"/>
+    <line x1="162" y1="90"  x2="160" y2="688" stroke="#4a2810" stroke-width="0.18"/>
+    <line x1="164" y1="90"  x2="162" y2="688" stroke="#d08040" stroke-width="0.28"/>
+    <line x1="166" y1="90"  x2="164" y2="688" stroke="#8a4e20" stroke-width="0.20"/>
+    <line x1="168" y1="90"  x2="166" y2="688" stroke="#f0b060" stroke-width="0.26"/>
+    <line x1="170" y1="90"  x2="168" y2="688" stroke="#2a1606" stroke-width="0.15"/>
+    <line x1="172" y1="90"  x2="170" y2="688" stroke="#c07030" stroke-width="0.30"/>
+    <line x1="174" y1="90"  x2="172" y2="688" stroke="#7a4420" stroke-width="0.22"/>
+    <line x1="176" y1="90"  x2="174" y2="688" stroke="#e09040" stroke-width="0.28"/>
+    <line x1="178" y1="90"  x2="176" y2="688" stroke="#5a3010" stroke-width="0.18"/>
+    <line x1="180" y1="90"  x2="178" y2="688" stroke="#f5c870" stroke-width="0.35"/>
+    <line x1="182" y1="90"  x2="180" y2="688" stroke="#3a1c08" stroke-width="0.20"/>
+    <line x1="184" y1="90"  x2="182" y2="688" stroke="#d08838" stroke-width="0.28"/>
+    <line x1="186" y1="90"  x2="184" y2="688" stroke="#9a5828" stroke-width="0.22"/>
+    <line x1="188" y1="90"  x2="186" y2="688" stroke="#f0b858" stroke-width="0.30"/>
+    <line x1="190" y1="90"  x2="188" y2="688" stroke="#4a2810" stroke-width="0.18"/>
+    <line x1="192" y1="90"  x2="190" y2="688" stroke="#c88030" stroke-width="0.25"/>
+    <line x1="194" y1="90"  x2="192" y2="688" stroke="#8a5020" stroke-width="0.22"/>
+    <line x1="196" y1="90"  x2="194" y2="688" stroke="#e8a850" stroke-width="0.32"/>
+    <line x1="198" y1="90"  x2="196" y2="688" stroke="#5a3010" stroke-width="0.18"/>
+    <line x1="200" y1="90"  x2="198" y2="688" stroke="#f2c060" stroke-width="0.30"/>
+    <line x1="202" y1="90"  x2="200" y2="688" stroke="#3c2008" stroke-width="0.20"/>
+    <line x1="204" y1="90"  x2="202" y2="688" stroke="#d09040" stroke-width="0.28"/>
+    <line x1="206" y1="90"  x2="204" y2="688" stroke="#7a4820" stroke-width="0.22"/>
+    <line x1="208" y1="90"  x2="206" y2="688" stroke="#ecb058" stroke-width="0.30"/>
+    <line x1="210" y1="90"  x2="208" y2="688" stroke="#4c2a10" stroke-width="0.20"/>
+    <line x1="212" y1="90"  x2="210" y2="688" stroke="#f8d080" stroke-width="0.38"/>
+    <line x1="214" y1="90"  x2="212" y2="688" stroke="#2e1608" stroke-width="0.18"/>
+    <line x1="216" y1="90"  x2="214" y2="688" stroke="#d49040" stroke-width="0.30"/>
+    <line x1="218" y1="90"  x2="216" y2="688" stroke="#9a5828" stroke-width="0.22"/>
+    <line x1="220" y1="90"  x2="218" y2="688" stroke="#f0c060" stroke-width="0.35"/>
+    <line x1="222" y1="90"  x2="220" y2="688" stroke="#4e2c0e" stroke-width="0.20"/>
+    <line x1="224" y1="90"  x2="222" y2="688" stroke="#e0a050" stroke-width="0.28"/>
+    <line x1="226" y1="90"  x2="224" y2="688" stroke="#7a4c1e" stroke-width="0.22"/>
+    <line x1="228" y1="90"  x2="226" y2="688" stroke="#fce8a8" stroke-width="0.40"/>
+    <line x1="230" y1="90"  x2="228" y2="688" stroke="#3a1c08" stroke-width="0.18"/>
+    <line x1="232" y1="90"  x2="230" y2="688" stroke="#d89848" stroke-width="0.30"/>
+    <line x1="234" y1="90"  x2="232" y2="688" stroke="#9c5c28" stroke-width="0.22"/>
+    <line x1="236" y1="90"  x2="234" y2="688" stroke="#f4cc68" stroke-width="0.38"/>
+    <line x1="238" y1="90"  x2="236" y2="688" stroke="#4a2810" stroke-width="0.20"/>
+    <line x1="240" y1="90"  x2="238" y2="688" stroke="#e8a858" stroke-width="0.28"/>
+    <line x1="242" y1="90"  x2="240" y2="688" stroke="#7e5020" stroke-width="0.22"/>
+    <line x1="244" y1="90"  x2="242" y2="688" stroke="#fde8a8" stroke-width="0.42"/>
+    <line x1="246" y1="90"  x2="244" y2="688" stroke="#2c1606" stroke-width="0.18"/>
+    <line x1="248" y1="90"  x2="246" y2="688" stroke="#d69040" stroke-width="0.30"/>
+    <line x1="250" y1="90"  x2="248" y2="688" stroke="#9c5c28" stroke-width="0.22"/>
+    <line x1="252" y1="90"  x2="250" y2="688" stroke="#f8d888" stroke-width="0.40"/>
+    <line x1="254" y1="90"  x2="252" y2="688" stroke="#401e08" stroke-width="0.18"/>
+    <line x1="256" y1="90"  x2="254" y2="688" stroke="#eab85e" stroke-width="0.35"/>
+    <line x1="258" y1="90"  x2="256" y2="688" stroke="#805022" stroke-width="0.22"/>
+    <!-- centre highlight grain -->
+    <line x1="260" y1="86"  x2="260" y2="688" stroke="rgba(255,255,255,0.45)" stroke-width="0.9"/>
+    <line x1="259" y1="86"  x2="259" y2="688" stroke="rgba(255,255,255,0.18)" stroke-width="0.5"/>
+    <line x1="261" y1="86"  x2="261" y2="688" stroke="rgba(255,255,255,0.18)" stroke-width="0.5"/>
+    <line x1="262" y1="90"  x2="260" y2="688" stroke="#f6e0a0" stroke-width="0.44"/>
+    <line x1="264" y1="90"  x2="262" y2="688" stroke="#805022" stroke-width="0.22"/>
+    <line x1="266" y1="90"  x2="264" y2="688" stroke="#eab85e" stroke-width="0.35"/>
+    <line x1="268" y1="90"  x2="266" y2="688" stroke="#401e08" stroke-width="0.18"/>
+    <line x1="270" y1="90"  x2="268" y2="688" stroke="#f8d888" stroke-width="0.40"/>
+    <line x1="272" y1="90"  x2="270" y2="688" stroke="#9c5c28" stroke-width="0.22"/>
+    <line x1="274" y1="90"  x2="272" y2="688" stroke="#d69040" stroke-width="0.30"/>
+    <line x1="276" y1="90"  x2="274" y2="688" stroke="#2c1606" stroke-width="0.18"/>
+    <line x1="278" y1="90"  x2="276" y2="688" stroke="#fde8a8" stroke-width="0.42"/>
+    <line x1="280" y1="90"  x2="278" y2="688" stroke="#7e5020" stroke-width="0.22"/>
+    <line x1="282" y1="90"  x2="280" y2="688" stroke="#e8a858" stroke-width="0.28"/>
+    <line x1="284" y1="90"  x2="282" y2="688" stroke="#4a2810" stroke-width="0.20"/>
+    <line x1="286" y1="90"  x2="284" y2="688" stroke="#f4cc68" stroke-width="0.38"/>
+    <line x1="288" y1="90"  x2="286" y2="688" stroke="#9c5c28" stroke-width="0.22"/>
+    <line x1="290" y1="90"  x2="288" y2="688" stroke="#d89848" stroke-width="0.30"/>
+    <line x1="292" y1="90"  x2="290" y2="688" stroke="#3a1c08" stroke-width="0.18"/>
+    <line x1="294" y1="90"  x2="292" y2="688" stroke="#fce8a8" stroke-width="0.40"/>
+    <line x1="296" y1="90"  x2="294" y2="688" stroke="#7a4c1e" stroke-width="0.22"/>
+    <line x1="298" y1="90"  x2="296" y2="688" stroke="#e0a050" stroke-width="0.28"/>
+    <line x1="300" y1="90"  x2="298" y2="688" stroke="#4e2c0e" stroke-width="0.20"/>
+    <line x1="302" y1="90"  x2="300" y2="688" stroke="#f0c060" stroke-width="0.35"/>
+    <line x1="304" y1="90"  x2="302" y2="688" stroke="#9a5828" stroke-width="0.22"/>
+    <line x1="306" y1="90"  x2="304" y2="688" stroke="#d49040" stroke-width="0.30"/>
+    <line x1="308" y1="90"  x2="306" y2="688" stroke="#2e1608" stroke-width="0.18"/>
+    <line x1="310" y1="90"  x2="308" y2="688" stroke="#f8d080" stroke-width="0.38"/>
+    <line x1="312" y1="90"  x2="310" y2="688" stroke="#4c2a10" stroke-width="0.20"/>
+    <line x1="314" y1="90"  x2="312" y2="688" stroke="#ecb058" stroke-width="0.30"/>
+    <line x1="316" y1="90"  x2="314" y2="688" stroke="#7a4820" stroke-width="0.22"/>
+    <line x1="318" y1="90"  x2="316" y2="688" stroke="#d09040" stroke-width="0.28"/>
+    <line x1="320" y1="90"  x2="318" y2="688" stroke="#3c2008" stroke-width="0.20"/>
+    <line x1="322" y1="90"  x2="320" y2="688" stroke="#f2c060" stroke-width="0.30"/>
+    <line x1="324" y1="90"  x2="322" y2="688" stroke="#5a3010" stroke-width="0.18"/>
+    <line x1="326" y1="90"  x2="324" y2="688" stroke="#e8a850" stroke-width="0.32"/>
+    <line x1="328" y1="90"  x2="326" y2="688" stroke="#8a5020" stroke-width="0.22"/>
+    <line x1="330" y1="90"  x2="328" y2="688" stroke="#c88030" stroke-width="0.25"/>
+    <line x1="332" y1="90"  x2="330" y2="688" stroke="#4a2810" stroke-width="0.18"/>
+    <line x1="334" y1="90"  x2="332" y2="688" stroke="#f0b858" stroke-width="0.30"/>
+    <line x1="336" y1="90"  x2="334" y2="688" stroke="#9a5828" stroke-width="0.22"/>
+    <line x1="338" y1="90"  x2="336" y2="688" stroke="#d08838" stroke-width="0.28"/>
+    <line x1="340" y1="90"  x2="338" y2="688" stroke="#3a1c08" stroke-width="0.20"/>
+    <line x1="342" y1="90"  x2="340" y2="688" stroke="#f5c870" stroke-width="0.35"/>
+    <line x1="344" y1="90"  x2="342" y2="688" stroke="#5a3010" stroke-width="0.18"/>
+    <line x1="346" y1="90"  x2="344" y2="688" stroke="#e09040" stroke-width="0.28"/>
+    <line x1="348" y1="90"  x2="346" y2="688" stroke="#7a4420" stroke-width="0.22"/>
+    <line x1="350" y1="90"  x2="348" y2="688" stroke="#c07030" stroke-width="0.30"/>
+    <line x1="352" y1="90"  x2="350" y2="688" stroke="#2a1606" stroke-width="0.15"/>
+    <line x1="354" y1="90"  x2="352" y2="688" stroke="#f0b060" stroke-width="0.26"/>
+    <line x1="356" y1="90"  x2="354" y2="688" stroke="#8a4e20" stroke-width="0.20"/>
+    <line x1="358" y1="90"  x2="356" y2="688" stroke="#d08040" stroke-width="0.28"/>
+    <line x1="360" y1="90"  x2="358" y2="688" stroke="#4a2810" stroke-width="0.18"/>
+    <line x1="362" y1="90"  x2="360" y2="688" stroke="#e8a050" stroke-width="0.22"/>
+    <line x1="364" y1="90"  x2="362" y2="688" stroke="#6a3a14" stroke-width="0.20"/>
+    <line x1="366" y1="90"  x2="364" y2="688" stroke="#c07838" stroke-width="0.30"/>
+    <line x1="368" y1="90"  x2="366" y2="688" stroke="#3a1a06" stroke-width="0.18"/>
+    <line x1="370" y1="90"  x2="368" y2="688" stroke="#5a3010" stroke-width="0.25"/>
+
+    <!-- fine grain micro-lines (knots, figure) -->
+    <path d="M180,180 Q200,195 220,185 Q240,175 260,185 Q280,195 300,180 Q320,165 340,178" fill="none" stroke="rgba(80,40,10,0.18)" stroke-width="0.7"/>
+    <path d="M165,230 Q185,250 210,240 Q235,230 260,244 Q285,258 310,242 Q335,228 355,240" fill="none" stroke="rgba(60,30,8,0.14)" stroke-width="0.6"/>
+    <path d="M162,290 Q182,310 205,298 Q228,286 260,302 Q292,318 315,300 Q340,282 360,295" fill="none" stroke="rgba(70,35,9,0.16)" stroke-width="0.65"/>
+    <path d="M164,360 Q186,378 210,366 Q234,354 260,370 Q286,386 312,368 Q338,350 356,365" fill="none" stroke="rgba(75,38,10,0.15)" stroke-width="0.6"/>
+    <path d="M168,430 Q190,446 215,436 Q240,426 260,440 Q282,454 308,438 Q334,422 350,436" fill="none" stroke="rgba(65,32,8,0.12)" stroke-width="0.55"/>
+    <path d="M174,500 Q196,516 220,505 Q244,494 260,508 Q278,522 304,507 Q330,492 346,506" fill="none" stroke="rgba(70,35,9,0.14)" stroke-width="0.6"/>
+    <path d="M182,558 Q204,572 226,562 Q248,552 260,564 Q274,576 298,563 Q322,550 342,562" fill="none" stroke="rgba(60,30,8,0.12)" stroke-width="0.55"/>
+    <path d="M194,610 Q214,622 235,614 Q256,606 268,616 Q282,626 304,614 Q326,602 340,612" fill="none" stroke="rgba(65,32,8,0.13)" stroke-width="0.55"/>
+
+    <!-- knot detail near bottom -->
+    <ellipse cx="244" cy="548" rx="14" ry="8" fill="none" stroke="rgba(60,30,10,0.22)" stroke-width="0.8"/>
+    <ellipse cx="244" cy="548" rx="10" ry="5" fill="none" stroke="rgba(80,40,12,0.18)" stroke-width="0.6"/>
+    <ellipse cx="244" cy="548" rx="6" ry="3" fill="none" stroke="rgba(40,20,6,0.25)" stroke-width="0.7"/>
+    <ellipse cx="284" cy="412" rx="10" ry="6" fill="none" stroke="rgba(60,30,10,0.20)" stroke-width="0.7"/>
+    <ellipse cx="284" cy="412" rx="6" ry="3.5" fill="none" stroke="rgba(80,40,12,0.16)" stroke-width="0.5"/>
+    <ellipse cx="230" cy="330" rx="8" ry="5" fill="none" stroke="rgba(55,28,8,0.18)" stroke-width="0.6"/>
+    <ellipse cx="292" cy="560" rx="7" ry="4" fill="none" stroke="rgba(60,30,10,0.17)" stroke-width="0.55"/>
+  </g>
+
+  <!-- ─────────────────────────────────────────
+       SWELL / SPINE raised area on back
+  ───────────────────────────────────────── -->
+  <!-- Spine ridge centre-back -->
+  <path d="
+    M255,92 C252,110 250,180 250,250 C250,350 252,450 255,560 C257,610 259,650 260,685
+    C261,650 263,610 265,560 C268,450 270,350 270,250 C270,180 268,110 265,92 Z
+  " fill="rgba(255,220,140,0.08)" />
+
+  <!-- ─────────────────────────────────────────
+       FACE HIGHLIGHT (central swell)
+  ───────────────────────────────────────── -->
+  <ellipse cx="260" cy="390" rx="68" ry="200"
+           fill="url(#swellHighlight)" opacity="0.55"/>
+  <ellipse cx="260" cy="390" rx="40" ry="160"
+           fill="url(#swellHighlight)" opacity="0.30"/>
+
+  <!-- ─────────────────────────────────────────
+       SHOULDER (where blade meets handle)
+  ───────────────────────────────────────── -->
+  <path d="
+    M216,82 C220,76 235,72 260,70 C285,72 300,76 304,82
+    L308,88 C300,84 282,82 260,82 C238,82 220,84 212,88 Z
+  " fill="url(#shoulderGrad)"/>
+
+  <!-- Shoulder binding line -->
+  <path d="M214,86 C226,80 246,77 260,77 C274,77 294,80 306,86"
+        fill="none" stroke="rgba(200,140,60,0.6)" stroke-width="1.2"/>
+  <path d="M216,88 C228,82 247,79 260,79 C273,79 292,82 304,88"
+        fill="none" stroke="rgba(255,200,100,0.25)" stroke-width="0.7"/>
+
+  <!-- ─────────────────────────────────────────
+       TOE (bottom of blade)
+  ───────────────────────────────────────── -->
+  <path d="
+    M196,668 C208,681 222,686 260,686 C298,686 312,681 324,668
+    C320,676 310,686 298,692 C286,698 274,700 260,700
+    C246,700 234,698 222,692 C210,686 200,676 196,668 Z
+  " fill="url(#toeGrad)"/>
+
+  <!-- Toe cap sheen -->
+  <path d="
+    M196,668 C208,681 222,686 260,686 C298,686 312,681 324,668
+    C320,676 310,686 298,692 C286,698 274,700 260,700
+    C246,700 234,698 222,692 C210,686 200,676 196,668 Z
+  " fill="url(#toeSheen)"/>
+
+  <!-- Toe cap highlight line -->
+  <path d="M210,690 Q260,703 310,690" fill="none"
+        stroke="rgba(255,230,160,0.18)" stroke-width="1.2"/>
+
+  <!-- ─────────────────────────────────────────
+       BLADE EDGE BINDING / PROTECTIVE STRIP
+  ───────────────────────────────────────── -->
+  <!-- Left edge -->
+  <path d="
+    M140,250 C140,200 146,160 162,130
+    C162,130 158,160 158,200 C158,270 160,370 166,450
+    C170,510 176,560 186,598 C194,628 204,650 212,662
+    C204,650 194,628 186,598 C176,560 170,510 166,450
+    C160,370 158,270 158,200 C158,160 162,130 162,130 Z
+  " fill="rgba(100,50,15,0.4)" />
+
+  <!-- Right edge -->
+  <path d="
+    M380,250 C380,200 374,160 358,130
+    C358,130 362,160 362,200 C362,270 360,370 354,450
+    C350,510 344,560 334,598 C326,628 316,650 308,662
+    C316,650 326,628 334,598 C344,560 350,510 354,450
+    C360,370 362,270 362,200 C362,160 358,130 358,130 Z
+  " fill="rgba(100,50,15,0.4)"/>
+
+  <!-- ─────────────────────────────────────────
+       FACE OUTLINE EDGE LINES
+  ───────────────────────────────────────── -->
+  <path d="
+    M210,88 C210,88 178,100 162,130 C146,160 140,200 140,250
+    C140,320 142,400 148,480
+    C152,530 158,570 166,600
+    C174,632 184,655 196,668
+    C208,681 222,686 260,686
+    C298,686 312,681 324,668
+    C336,655 346,632 354,600
+    C362,570 368,530 372,480
+    C378,400 380,320 380,250
+    C380,200 374,160 358,130
+    C342,100 310,88 310,88
+    C300,84 282,82 260,82
+    C238,82 220,84 210,88 Z
+  " fill="none" stroke="rgba(80,40,10,0.85)" stroke-width="1.5"/>
+
+  <!-- inner glow edge -->
+  <path d="
+    M213,91 C213,91 181,103 165,132 C149,162 143,202 143,252
+    C143,322 145,402 151,482
+    C155,532 161,572 169,602
+    C177,633 187,656 199,669
+    C210,681 224,686 260,686
+    C296,686 310,681 321,669
+    C333,656 343,633 351,602
+    C359,572 365,532 369,482
+    C375,402 377,322 377,252
+    C377,202 371,162 355,132
+    C339,103 307,91 307,91
+  " fill="none" stroke="rgba(240,190,90,0.12)" stroke-width="1.2"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       BRAND LABEL — painted on face
+  ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Brand panel background -->
+  <rect x="208" y="310" width="104" height="82" rx="6"
+        fill="rgba(20,10,4,0.55)" stroke="rgba(200,150,60,0.4)" stroke-width="0.8"/>
+
+  <!-- Brand decorative top border -->
+  <line x1="214" y1="320" x2="306" y2="320" stroke="url(#goldGrad)" stroke-width="0.9"/>
+  <line x1="214" y1="322" x2="306" y2="322" stroke="rgba(200,160,60,0.25)" stroke-width="0.4"/>
+
+  <!-- Brand logo text "W" shield mark -->
+  <path d="M248,332 L253,354 L260,344 L267,354 L272,332 Z"
+        fill="url(#goldGrad)" opacity="0.88"/>
+  <path d="M250,334 L254,352 L260,343 L266,352 L270,334 Z"
+        fill="rgba(20,10,4,0.6)"/>
+
+  <!-- Brand name lines -->
+  <text x="260" y="366" font-family="Georgia, serif" font-size="9.5"
+        font-weight="bold" letter-spacing="2.5" fill="url(#goldGrad)"
+        text-anchor="middle" opacity="0.9">WILLOW</text>
+
+  <text x="260" y="379" font-family="Georgia, serif" font-size="6.5"
+        letter-spacing="1.8" fill="rgba(220,180,80,0.7)"
+        text-anchor="middle">ENGLISH</text>
+
+  <line x1="222" y1="384" x2="298" y2="384" stroke="url(#goldGrad)" stroke-width="0.8"/>
+
+  <text x="260" y="393" font-family="Georgia, serif" font-size="5.5"
+        letter-spacing="1.5" fill="rgba(180,140,60,0.6)"
+        text-anchor="middle">GRADE 1  ·  FULL SIZE</text>
+
+  <!-- Brand decorative bottom border -->
+  <line x1="214" y1="385" x2="306" y2="385" stroke="rgba(200,150,60,0.25)" stroke-width="0.4"/>
+
+  <!-- ─────────────────────────────────────────
+       SWEET SPOT INDICATOR
+  ───────────────────────────────────────── -->
+  <ellipse cx="260" cy="480" rx="38" ry="20"
+           fill="none" stroke="rgba(180,130,50,0.30)" stroke-width="1.0"
+           stroke-dasharray="3,2"/>
+  <ellipse cx="260" cy="480" rx="28" ry="14"
+           fill="none" stroke="rgba(200,150,60,0.20)" stroke-width="0.6"/>
+  <text x="260" y="483" font-family="Georgia, serif" font-size="5.2"
+        letter-spacing="1.2" fill="rgba(180,130,50,0.38)"
+        text-anchor="middle">SWEET SPOT</text>
+
+  <!-- ─────────────────────────────────────────
+       STICKER AREA (lower blade)
+  ───────────────────────────────────────── -->
+  <rect x="218" y="590" width="84" height="36" rx="3"
+        fill="rgba(180,50,30,0.72)" stroke="rgba(220,180,80,0.4)" stroke-width="0.7"/>
+  <line x1="224" y1="597" x2="296" y2="597" stroke="rgba(220,180,80,0.5)" stroke-width="0.6"/>
+  <text x="260" y="607" font-family="Georgia, serif" font-size="7.5"
+        font-weight="bold" letter-spacing="2" fill="rgba(255,220,100,0.92)"
+        text-anchor="middle">CRICKET</text>
+  <text x="260" y="619" font-family="Georgia, serif" font-size="5.5"
+        letter-spacing="1.5" fill="rgba(255,200,80,0.7)"
+        text-anchor="middle">HANDCRAFTED</text>
+  <line x1="224" y1="621" x2="296" y2="621" stroke="rgba(220,180,80,0.5)" stroke-width="0.6"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       ██╗  ██╗ █████╗ ███╗   ██╗██████╗ ██╗     ███████╗
+       ██║  ██║██╔══██╗████╗  ██║██╔══██╗██║     ██╔════╝
+       ███████║███████║██╔██╗ ██║██║  ██║██║     █████╗
+       ██╔══██║██╔══██║██║╚██╗██║██║  ██║██║     ██╔══╝
+       ██║  ██║██║  ██║██║ ╚████║██████╔╝███████╗███████╗
+       ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚══════╝
+  ═══════════════════════════════════════════════════════════════════ -->
+
+  <!-- ─────────────────────────────────────────
+       CANE HANDLE — main body
+  ───────────────────────────────────────── -->
+  <rect x="241" y="700" width="38" height="210" rx="4"
+        fill="url(#handleGrad)"/>
+
+  <!-- handle side shading strips -->
+  <rect x="241" y="700" width="6" height="210" rx="2"
+        fill="rgba(0,0,0,0.35)"/>
+  <rect x="273" y="700" width="6" height="210" rx="2"
+        fill="rgba(0,0,0,0.35)"/>
+
+  <!-- handle highlight -->
+  <rect x="248" y="700" width="24" height="210"
+        fill="rgba(255,255,255,0.04)"/>
+  <line x1="260" y1="702" x2="260" y2="908"
+        stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+
+  <!-- ─────────────────────────────────────────
+       GRIP WRAP — diagonal leather binding
+       (many individual strips for texture)
+  ───────────────────────────────────────── -->
+  <g clip-path="url(#gripClip)">
+    <!-- filled with grip texture pattern -->
+  </g>
+
+  <!-- Define grip clip -->
+  <defs>
+    <clipPath id="gripClip">
+      <rect x="241" y="700" width="38" height="200" rx="3"/>
+    </clipPath>
+  </defs>
+
+  <!-- Grip wrap base -->
+  <rect x="241" y="700" width="38" height="200" rx="3"
+        fill="url(#gripGrad)" clip-path="url(#gripClip)"/>
+
+  <!-- Diagonal wrap strips — each one individually drawn -->
+  <!-- strip set going top-left to bottom-right at ~20deg -->
+  <g clip-path="url(#gripClip)" opacity="0.88" filter="url(#gripTexture)">
+    <line x1="228" y1="700" x2="270" y2="900" stroke="rgba(0,0,0,0.55)" stroke-width="4.5"/>
+    <line x1="228" y1="700" x2="270" y2="900" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/>
+    <line x1="232" y1="700" x2="274" y2="900" stroke="rgba(0,0,0,0.50)" stroke-width="4.5"/>
+    <line x1="232" y1="700" x2="274" y2="900" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/>
+    <line x1="236" y1="700" x2="278" y2="900" stroke="rgba(0,0,0,0.50)" stroke-width="4.5"/>
+    <line x1="240" y1="700" x2="282" y2="900" stroke="rgba(0,0,0,0.52)" stroke-width="4.5"/>
+    <line x1="244" y1="700" x2="286" y2="900" stroke="rgba(0,0,0,0.48)" stroke-width="4.5"/>
+    <line x1="248" y1="700" x2="290" y2="900" stroke="rgba(0,0,0,0.52)" stroke-width="4.5"/>
+    <line x1="252" y1="700" x2="294" y2="900" stroke="rgba(0,0,0,0.50)" stroke-width="4.5"/>
+    <line x1="256" y1="700" x2="298" y2="900" stroke="rgba(0,0,0,0.50)" stroke-width="4.5"/>
+    <line x1="260" y1="700" x2="302" y2="900" stroke="rgba(0,0,0,0.52)" stroke-width="4.5"/>
+    <line x1="264" y1="700" x2="306" y2="900" stroke="rgba(0,0,0,0.50)" stroke-width="4.5"/>
+    <line x1="268" y1="700" x2="310" y2="900" stroke="rgba(0,0,0,0.50)" stroke-width="4.5"/>
+    <line x1="272" y1="700" x2="314" y2="900" stroke="rgba(0,0,0,0.52)" stroke-width="4.5"/>
+    <line x1="276" y1="700" x2="318" y2="900" stroke="rgba(0,0,0,0.50)" stroke-width="4.5"/>
+    <line x1="280" y1="700" x2="322" y2="900" stroke="rgba(0,0,0,0.52)" stroke-width="4.5"/>
+    <line x1="284" y1="700" x2="326" y2="900" stroke="rgba(0,0,0,0.48)" stroke-width="4.5"/>
+    <line x1="288" y1="700" x2="330" y2="900" stroke="rgba(0,0,0,0.52)" stroke-width="4.5"/>
+    <line x1="292" y1="700" x2="334" y2="900" stroke="rgba(0,0,0,0.50)" stroke-width="4.5"/>
+
+    <!-- cross-diagonal for weave illusion -->
+    <line x1="280" y1="700" x2="238" y2="900" stroke="rgba(0,0,0,0.20)" stroke-width="2"/>
+    <line x1="286" y1="700" x2="244" y2="900" stroke="rgba(0,0,0,0.18)" stroke-width="2"/>
+    <line x1="292" y1="700" x2="250" y2="900" stroke="rgba(0,0,0,0.20)" stroke-width="2"/>
+    <line x1="298" y1="700" x2="256" y2="900" stroke="rgba(0,0,0,0.18)" stroke-width="2"/>
+    <line x1="274" y1="700" x2="232" y2="900" stroke="rgba(0,0,0,0.20)" stroke-width="2"/>
+    <line x1="268" y1="700" x2="226" y2="900" stroke="rgba(0,0,0,0.18)" stroke-width="2"/>
+    <line x1="262" y1="700" x2="220" y2="900" stroke="rgba(0,0,0,0.20)" stroke-width="2"/>
+
+    <!-- Sheen highlight over grip -->
+    <rect x="249" y="700" width="7" height="200"
+          fill="rgba(255,255,255,0.06)"/>
+  </g>
+
+  <!-- ─────────────────────────────────────────
+       GRIP COLOUR BANDS (decorative rings)
+  ───────────────────────────────────────── -->
+  <!-- Top grip cap ring — gold -->
+  <rect x="239" y="700" width="42" height="6" rx="2"
+        fill="url(#goldGrad)" opacity="0.9"/>
+  <rect x="239" y="702" width="42" height="1.5"
+        fill="rgba(255,255,255,0.20)" opacity="0.6"/>
+
+  <!-- Band 1 — gold (top third) -->
+  <rect x="240" y="733" width="40" height="5" rx="1.5"
+        fill="url(#goldGrad)" opacity="0.8"/>
+  <rect x="240" y="733.5" width="40" height="1" fill="rgba(255,255,255,0.18)"/>
+
+  <!-- Band 2 — red centre -->
+  <rect x="240" y="780" width="40" height="5" rx="1.5"
+        fill="url(#gripRedGrad)" opacity="0.9"/>
+  <rect x="240" y="780.5" width="40" height="1" fill="rgba(255,180,180,0.15)"/>
+
+  <!-- Band 3 — gold lower -->
+  <rect x="240" y="827" width="40" height="5" rx="1.5"
+        fill="url(#goldGrad)" opacity="0.8"/>
+  <rect x="240" y="827.5" width="40" height="1" fill="rgba(255,255,255,0.18)"/>
+
+  <!-- Band 4 — red near bottom -->
+  <rect x="240" y="872" width="40" height="5" rx="1.5"
+        fill="url(#gripRedGrad)" opacity="0.9"/>
+  <rect x="240" y="872.5" width="40" height="1" fill="rgba(255,180,180,0.15)"/>
+
+  <!-- Bottom grip ring — gold -->
+  <rect x="239" y="896" width="42" height="8" rx="3"
+        fill="url(#goldGrad)" opacity="0.88"/>
+  <rect x="239" y="897.5" width="42" height="2"
+        fill="rgba(255,255,255,0.22)" opacity="0.5"/>
+
+  <!-- ─────────────────────────────────────────
+       GRIP DETAIL — micro stitch lines on bands
+  ───────────────────────────────────────── -->
+  <g opacity="0.4">
+    <!-- Gold band 1 stitch -->
+    <line x1="244" y1="734.5" x2="244" y2="737" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+    <line x1="248" y1="734.5" x2="248" y2="737" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+    <line x1="252" y1="734.5" x2="252" y2="737" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+    <line x1="256" y1="734.5" x2="256" y2="737" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+    <line x1="260" y1="734.5" x2="260" y2="737" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+    <line x1="264" y1="734.5" x2="264" y2="737" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+    <line x1="268" y1="734.5" x2="268" y2="737" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+    <line x1="272" y1="734.5" x2="272" y2="737" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+    <line x1="276" y1="734.5" x2="276" y2="737" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+  </g>
+
+  <!-- ─────────────────────────────────────────
+       SAPLING / POMMEL (bottom end of bat)
+  ───────────────────────────────────────── -->
+  <ellipse cx="260" cy="904" rx="24" ry="12"
+           fill="url(#handleGrad)" stroke="rgba(150,100,40,0.5)" stroke-width="1"/>
+  <ellipse cx="260" cy="904" rx="20" ry="9"
+           fill="url(#shoulderGrad)" opacity="0.6"/>
+  <ellipse cx="260" cy="904" rx="14" ry="6"
+           fill="rgba(255,220,130,0.12)"/>
+  <!-- pommel sheen -->
+  <ellipse cx="255" cy="901" rx="7" ry="3.5"
+           fill="rgba(255,255,255,0.12)"/>
+
+  <!-- ─────────────────────────────────────────
+       CONNECTION — shoulder fillet (blade to handle)
+  ───────────────────────────────────────── -->
+  <path d="
+    M241,700 C241,698 243,696 248,694 C252,692 256,691 260,691
+    C264,691 268,692 272,694 C277,696 279,698 279,700
+  " fill="url(#shoulderGrad)" opacity="0.7"/>
+
+  <!-- fillet shadow line -->
+  <path d="M241,700 C248,697 254,696 260,696 C266,696 272,697 279,700"
+        fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+
+  <!-- ─────────────────────────────────────────
+       HORIZONTAL CLEFT RINGS ON HANDLE
+       (cane section joints)
+  ───────────────────────────────────────── -->
+  <g opacity="0.30">
+    <line x1="241" y1="718" x2="279" y2="718" stroke="rgba(0,0,0,0.8)" stroke-width="0.8"/>
+    <line x1="241" y1="719" x2="279" y2="719" stroke="rgba(255,255,255,0.1)" stroke-width="0.4"/>
+    <line x1="241" y1="744" x2="279" y2="744" stroke="rgba(0,0,0,0.8)" stroke-width="0.8"/>
+    <line x1="241" y1="745" x2="279" y2="745" stroke="rgba(255,255,255,0.1)" stroke-width="0.4"/>
+    <line x1="241" y1="760" x2="279" y2="760" stroke="rgba(0,0,0,0.8)" stroke-width="0.8"/>
+    <line x1="241" y1="761" x2="279" y2="761" stroke="rgba(255,255,255,0.1)" stroke-width="0.4"/>
+    <line x1="241" y1="796" x2="279" y2="796" stroke="rgba(0,0,0,0.8)" stroke-width="0.8"/>
+    <line x1="241" y1="808" x2="279" y2="808" stroke="rgba(0,0,0,0.8)" stroke-width="0.8"/>
+    <line x1="241" y1="843" x2="279" y2="843" stroke="rgba(0,0,0,0.8)" stroke-width="0.8"/>
+    <line x1="241" y1="858" x2="279" y2="858" stroke="rgba(0,0,0,0.8)" stroke-width="0.8"/>
+    <line x1="241" y1="880" x2="279" y2="880" stroke="rgba(0,0,0,0.8)" stroke-width="0.8"/>
+  </g>
+
+  <!-- ─────────────────────────────────────────
+       HANDLE OUTLINE
+  ───────────────────────────────────────── -->
+  <rect x="241" y="700" width="38" height="200" rx="4"
+        fill="none" stroke="rgba(80,50,15,0.7)" stroke-width="1.2"/>
+
+  </g><!-- end batShadow group -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       AMBIENT REFLECTION LINES (floor reflection glow below bat)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <ellipse cx="260" cy="920" rx="80" ry="12"
+           fill="rgba(200,150,50,0.10)"/>
+  <ellipse cx="260" cy="925" rx="50" ry="7"
+           fill="rgba(200,150,50,0.08)"/>
+  <ellipse cx="260" cy="929" rx="25" ry="4"
+           fill="rgba(200,150,50,0.06)"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FINE DETAIL — face scuff marks and use-wear
+  ══════════════════════════════════════════════════════════════════════ -->
+  <g opacity="0.09">
+    <!-- diagonal impact scratches on sweet spot -->
+    <line x1="248" y1="462" x2="268" y2="498" stroke="#fff" stroke-width="0.6"/>
+    <line x1="252" y1="458" x2="272" y2="494" stroke="#fff" stroke-width="0.4"/>
+    <line x1="256" y1="470" x2="270" y2="502" stroke="#fff" stroke-width="0.5"/>
+    <line x1="244" y1="475" x2="260" y2="500" stroke="#fff" stroke-width="0.4"/>
+    <line x1="262" y1="466" x2="278" y2="496" stroke="#fff" stroke-width="0.5"/>
+    <line x1="266" y1="472" x2="280" y2="500" stroke="#fff" stroke-width="0.4"/>
+    <!-- toe scuffs -->
+    <line x1="222" y1="665" x2="235" y2="680" stroke="#fff" stroke-width="0.5"/>
+    <line x1="285" y1="665" x2="298" y2="680" stroke="#fff" stroke-width="0.5"/>
+    <line x1="228" y1="668" x2="238" y2="682" stroke="#fff" stroke-width="0.4"/>
+    <line x1="280" y1="668" x2="290" y2="682" stroke="#fff" stroke-width="0.4"/>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       OUTERMOST BLADE EDGE BEVELS (3D depth)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <!-- Left bevel -->
+  <path d="
+    M140,250 C140,200 146,160 162,130
+    C150,155 146,190 145,235
+    C144,305 146,400 152,480
+    C156,530 163,570 172,600
+    C180,632 190,655 200,668
+    C192,656 182,632 174,600
+    C165,568 159,530 155,480
+    C148,398 146,318 146,250
+    C146,200 152,162 165,135 Z
+  " fill="rgba(20,8,2,0.55)"/>
+
+  <!-- Right bevel -->
+  <path d="
+    M380,250 C380,200 374,160 358,130
+    C370,155 374,190 375,235
+    C376,305 374,400 368,480
+    C364,530 357,570 348,600
+    C340,632 330,655 320,668
+    C328,656 338,632 346,600
+    C355,568 361,530 365,480
+    C372,398 374,318 374,250
+    C374,200 368,162 355,135 Z
+  " fill="rgba(20,8,2,0.55)"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SPECULAR HIGHLIGHTS — simulate direct lamp
+  ══════════════════════════════════════════════════════════════════════ -->
+  <!-- Main specular streak top-centre -->
+  <path d="M255,88 C257,120 258,180 257,260 C256,330 255,400 256,460"
+        fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="3.5"
+        stroke-linecap="round"/>
+  <path d="M255,88 C257,120 258,180 257,260 C256,330 255,400 256,460"
+        fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="7"
+        stroke-linecap="round"/>
+
+  <!-- secondary left specular -->
+  <path d="M215,105 C210,130 205,170 204,220 C203,275 205,340 208,400"
+        fill="none" stroke="rgba(255,240,200,0.08)" stroke-width="2.5"
+        stroke-linecap="round"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FINAL OVERALL VIGNETTE ON BLADE
+  ══════════════════════════════════════════════════════════════════════ -->
+  <path d="
+    M210,88 C210,88 178,100 162,130 C146,160 140,200 140,250
+    C140,320 142,400 148,480
+    C152,530 158,570 166,600
+    C174,632 184,655 196,668
+    C208,681 222,686 260,686
+    C298,686 312,681 324,668
+    C336,655 346,632 354,600
+    C362,570 368,530 372,480
+    C378,400 380,320 380,250
+    C380,200 374,160 358,130
+    C342,100 310,88 310,88
+    C300,84 282,82 260,82
+    C238,82 220,84 210,88 Z
+  "
+  fill="none"
+  stroke="rgba(255,220,140,0.07)"
+  stroke-width="8"/>
+
+</svg>
+
 </body>
 </html>
