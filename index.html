@@ -3,37 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cricket Weight Impact Metric</title>
+    <title>CricNext Coming Soon</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-image: url('dotted-background.png');
-            background-size: cover;
-            text-align: center;
-            padding: 50px;
-        }
-        h1 {
-            position: relative;
-            display: inline-block;
-        }
-        h1 span {
-            text-decoration: underline;
-            text-decoration-color: yellow;
-        }
-        .badge {
-            display: inline-block;
-            background-color: #0070f3;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(45deg, #ff6e7f, #bfe9ff, #86a8e7);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
             color: white;
-            border-radius: 50px;
-            padding: 10px 20px;
-            font-size: 14px;
-            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            font-size: 50px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+            margin-bottom: 30px;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #gameContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #game {
+            width: 600px;
+            height: 400px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            position: relative;
+            overflow: hidden;
+            border: 3px solid gold;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .paddle {
+            width: 12px;
+            height: 80px;
+            background: linear-gradient(90deg, #ff6b6b, #ff8787);
+            position: absolute;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.7);
+        }
+
+        #leftPaddle {
+            left: 10px;
+        }
+
+        #rightPaddle {
+            right: 10px;
+        }
+
+        .ball {
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle at 30% 30%, #ffeb3b, #ff6f00);
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 15px rgba(255, 235, 59, 0.8);
+        }
+
+        .centerline {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            border-left: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        #score {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="badge">CRICKET ANALYTICS</div>
-    <h1>Cricket Weight Impact <span>Metric</span></h1>
-    <p>Coming Soon</p>
+    <h1>🏏 CricNext Coming Soon 🏏</h1>
+    <div id="gameContainer">
+        <div id="game">
+            <div class="centerline"></div>
+            <div class="paddle" id="leftPaddle"></div>
+            <div class="paddle" id="rightPaddle"></div>
+            <div class="ball" id="ball"></div>
+        </div>
+        <div id="score">Left: <span id="leftScore">0</span> | Right: <span id="rightScore">0</span></div>
+    </div>
+
+    <script>
+        const ball = document.getElementById('ball');
+        const leftPaddle = document.getElementById('leftPaddle');
+        const rightPaddle = document.getElementById('rightPaddle');
+        const game = document.getElementById('game');
+        const leftScoreSpan = document.getElementById('leftScore');
+        const rightScoreSpan = document.getElementById('rightScore');
+
+        let ballX = 300;
+        let ballY = 200;
+        let ballSpeedX = 3;
+        let ballSpeedY = 3;
+        let leftScore = 0;
+        let rightScore = 0;
+        let leftPaddleY = 160;
+        let rightPaddleY = 160;
+
+        function updateGame() {
+            // Move ball
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Ball collision with top/bottom
+            if (ballY <= 0 || ballY >= 388) {
+                ballSpeedY = -ballSpeedY;
+                ballY = Math.max(0, Math.min(388, ballY));
+            }
+
+            // Ball collision with paddles
+            if (ballX <= 22 && ballY + 6 >= leftPaddleY && ballY + 6 <= leftPaddleY + 80) {
+                ballSpeedX = -ballSpeedX * 1.05;
+                ballX = 22;
+            }
+
+            if (ballX >= 588 && ballY + 6 >= rightPaddleY && ballY + 6 <= rightPaddleY + 80) {
+                ballSpeedX = -ballSpeedX * 1.05;
+                ballX = 588;
+            }
+
+            // Score points
+            if (ballX < 0) {
+                rightScore++;
+                resetBall();
+            }
+            if (ballX > 600) {
+                leftScore++;
+                resetBall();
+            }
+
+            // AI for right paddle
+            const aiSpeed = 2.5;
+            const paddleCenter = rightPaddleY + 40;
+            const ballCenter = ballY + 6;
+            if (paddleCenter < ballCenter - 5) {
+                rightPaddleY += aiSpeed;
+            } else if (paddleCenter > ballCenter + 5) {
+                rightPaddleY -= aiSpeed;
+            }
+
+            rightPaddleY = Math.max(0, Math.min(320, rightPaddleY));
+
+            // Update positions
+            ball.style.left = ballX + 'px';
+            ball.style.top = ballY + 'px';
+            leftPaddle.style.top = leftPaddleY + 'px';
+            rightPaddle.style.top = rightPaddleY + 'px';
+            leftScoreSpan.textContent = leftScore;
+            rightScoreSpan.textContent = rightScore;
+
+            requestAnimationFrame(updateGame);
+        }
+
+        function resetBall() {
+            ballX = 300;
+            ballY = 200;
+            ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * 3;
+            ballSpeedY = (Math.random() - 0.5) * 4;
+        }
+
+        game.addEventListener('mousemove', (event) => {
+            const gameRect = game.getBoundingClientRect();
+            const mouseY = event.clientY - gameRect.top;
+            leftPaddleY = Math.max(0, Math.min(mouseY - 40, 320));
+        });
+
+        updateGame();
+    </script>
 </body>
 </html>
