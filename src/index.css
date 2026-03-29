@@ -107,8 +107,10 @@
   .wim-data-prose pre code {
     @apply border-0 bg-transparent p-0 text-[0.8rem] text-foreground;
   }
-  .wim-data-prose pre:has(.language-mermaid)::before {
-    content: "Mermaid diagram source";
-    @apply mb-3 block font-jakarta text-[0.65rem] font-bold uppercase tracking-widest text-mutedForeground;
+
+  /* Wide tables: outer scroll shell carries border/shadow; inner table stays flat */
+  .wim-data-prose .data-table-scroll > table {
+    @apply mb-0 w-max min-w-full border-0 shadow-none;
+    border-radius: 0;
   }
 }

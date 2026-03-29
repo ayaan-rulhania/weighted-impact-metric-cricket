@@ -37,7 +37,7 @@ export function StickerCard({ title, accent = "accent", featured, icon, children
         {icon}
       </div>
       <h3 className="font-outfit text-xl font-extrabold tracking-tight text-foreground">{title}</h3>
-      <div className="mt-4 space-y-4">{children}</div>
+      <div className="mt-4 min-w-0 space-y-4">{children}</div>
     </article>
   );
 }
