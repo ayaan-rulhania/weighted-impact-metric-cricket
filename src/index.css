@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 @layer base {
+  /* ~one browser zoom step out (e.g. 100% → 90%); scales Tailwind rem-based spacing/type */
+  html {
+    font-size: 90%;
+  }
+
   .material-symbols-outlined {
     font-family: "Material Symbols Outlined";
     font-weight: 500;

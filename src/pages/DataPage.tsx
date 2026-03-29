@@ -48,7 +48,7 @@ export default function DataPage() {
         <p className="mb-2 inline-block rounded-full border-2 border-foreground bg-secondary/25 px-3 py-1 font-jakarta text-xs font-bold uppercase tracking-widest text-foreground">
           Data
         </p>
-        <h1 className="font-outfit text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">Model test report</h1>
+        <h1 className="font-outfit text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">Model Test Report</h1>
         <p className="mt-3 max-w-2xl font-jakarta text-xs font-medium leading-relaxed text-mutedForeground sm:text-sm">
           Results on this page may be incomplete or inaccurate. We are actively developing <strong className="text-foreground">WIM v5.1</strong>, which
           will ship refined data handling and ratings — expected release soon.
