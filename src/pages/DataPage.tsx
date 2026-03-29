@@ -32,6 +32,7 @@ export default function DataPage() {
         title="Real ODI sample"
         accent="secondary"
         featured
+        disableHoverTilt
         icon={<span className="material-symbols-outlined text-[22px] text-white">table_chart</span>}
       >
         <p className="mb-6 font-jakarta text-xs font-medium text-mutedForeground sm:text-sm">

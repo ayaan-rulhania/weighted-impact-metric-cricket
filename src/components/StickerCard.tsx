@@ -6,6 +6,8 @@ type Props = {
   featured?: boolean;
   icon?: ReactNode;
   children: ReactNode;
+  /** Long-form content: skip hover rotate/scale for readability */
+  disableHoverTilt?: boolean;
 };
 
 const headerBar: Record<NonNullable<Props["accent"]>, string> = {
@@ -14,11 +16,15 @@ const headerBar: Record<NonNullable<Props["accent"]>, string> = {
   tertiary: "bg-tertiary",
 };
 
-export function StickerCard({ title, accent = "accent", featured, icon, children }: Props) {
+const hoverTilt =
+  "transition-transform duration-300 ease-bounce hover:-rotate-1 hover:scale-[1.02] motion-reduce:hover:scale-100 motion-reduce:hover:rotate-0";
+
+export function StickerCard({ title, accent = "accent", featured, icon, children, disableHoverTilt }: Props) {
   return (
     <article
       className={[
-        "relative rounded-xl border-2 border-foreground bg-card p-6 pt-8 transition-transform duration-300 ease-bounce hover:-rotate-1 hover:scale-[1.02] motion-reduce:hover:scale-100 motion-reduce:hover:rotate-0",
+        "relative rounded-xl border-2 border-foreground bg-card p-6 pt-8",
+        disableHoverTilt ? "" : hoverTilt,
         featured ? "shadow-card-featured" : "shadow-card-sticker",
       ].join(" ")}
     >

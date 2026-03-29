@@ -32,6 +32,7 @@ export default function AboutPage() {
         title="Full spec"
         accent="accent"
         featured
+        disableHoverTilt
         icon={<span className="material-symbols-outlined text-[22px] text-white">functions</span>}
       >
         <article className="wim-spec-prose">
