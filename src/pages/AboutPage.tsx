@@ -19,6 +19,13 @@ export default function AboutPage() {
           with <code className="rounded border border-border bg-muted px-1.5 py-0.5 text-foreground">equation.tex</code> and{" "}
           <code className="rounded border border-border bg-muted px-1.5 py-0.5 text-foreground">src/lib/wim.ts</code>. Math uses KaTeX.
         </p>
+        <a
+          href="/equation.tex"
+          download="equation.tex"
+          className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full border-2 border-foreground bg-card px-6 font-outfit text-sm font-extrabold text-foreground shadow-[4px_4px_0_0_#1E293B] transition-all duration-300 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-muted/80 hover:shadow-[6px_6px_0_0_#1E293B] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[2px_2px_0_0_#1E293B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          Download equation.tex
+        </a>
       </header>
 
       <StickerCard

@@ -1,0 +1,284 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=22mm]{geometry}
+
+\title{WIM v5 --- Weighted Impact Metric\\{\large Specification and \texttt{src/lib/wim.ts}}}
+\author{Ayaan Rulhania}
+\date{}
+
+\newcommand{\winsor}{\operatorname{Winsor}}
+\newcommand{\softplus}{\operatorname{softplus}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document defines the \textbf{WIM} career index: raw expectation-style contributions for batting, bowling, and fielding, plus a linear \textbf{longevity add-on} $b_m\cdot\max(0,M_{\mathrm{ch}})$ per career match, then an outer cap yielding \textbf{Rating}$\in[0,1]$.
+Numerical defaults live in \texttt{src/lib/defaults.ts}; symbols below map to \texttt{WimGlobalParams} and \texttt{WimPlayerStats}.
+The model is \textbf{format-aware only through tunable globals} (baselines, knees, $C_{\mathrm{legend}}$): the same functional form may be used for Test, ODI, or T20 by recalibrating parameters, not by changing equations.
+\end{abstract}
+
+\section{Player inputs and globals}
+
+\subsection{Per-player statistics (\texttt{WimPlayerStats})}
+Let $M_{\mathrm{ch}}\ge 1$ be career matches (code: \texttt{matches}, floored at $1$ for rates).
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+Symbol & Code field & Definition / use \\
+\hline
+$R$ & \texttt{R} & Career runs scored \\
+$O_{\mathrm{raw}}$ & \texttt{dismissals} & Dismissals while batting \\
+$BF$ & \texttt{BF} & Balls faced (batting) \\
+$W$ & \texttt{wickets} & Career wickets \\
+$R_{\mathrm{bwl}}$ & \texttt{runsConceded} & Runs conceded bowling \\
+$C$ & \texttt{catches} & Catches (count) \\
+$RO$ & \texttt{runouts} & Run-outs credited (fractional allowed) \\
+\hline
+\end{tabular}
+\end{center}
+Primary role $\rho\in\{\mathrm{batter},\mathrm{bowler},\mathrm{allrounder}\}$ (\texttt{mainRole}) applies discipline discount $\phi$ (\texttt{roleDisciplinePhi}, default $0.98$) to the \emph{non-primary} raw RE block (Section~\ref{sec:role}).
+
+\subsection{Effective dismissals and rates}
+\begin{align}
+  O &= \max(O_{\mathrm{raw}},\,1), &
+  \mathrm{BatAvg} &= \frac{R}{O}, &
+  \mathrm{SR} &= \frac{100\,R}{\max(BF,1)}, &
+  R_{pm} &= \frac{R}{M_{\mathrm{ch}}}.
+\end{align}
+
+\subsection{Baseline scaling (\texttt{baseStar})}
+All ``starred'' baselines use venue/era factors $\eta_V,\eta_E,\eta_O>0$:
+\begin{equation}
+  \mathrm{Base}^\ast(x) = \frac{x\,\eta_V\,\eta_E}{\max(\eta_O,\varepsilon_\eta)},
+  \qquad
+  \mathrm{Base}^\ast_{\mathrm{avg}} = \mathrm{Base}^\ast(\mathrm{baseAvg}),\;
+  \mathrm{Base}^\ast_{\mathrm{sr}} = \mathrm{Base}^\ast(\mathrm{baseSr}),\;
+  \mathrm{Base}^\ast_{\mathrm{bwl}} = \mathrm{Base}^\ast(\mathrm{baseBowlAvg}),\;
+  \mathrm{Base}^\ast_{\mathrm{econ}} = \mathrm{Base}^\ast(\mathrm{baseEcon}).
+\end{equation}
+(Default implementation uses $\eta_V=\eta_E=\eta_O=1$; $\varepsilon_\eta$ is \texttt{etaODenominatorMin} in \texttt{WimGlobalParams}.)
+
+\subsection{Primitive operators}
+\begin{align}
+  \winsor(x;\ell,h) &= \min\bigl(h,\max(\ell,x)\bigr), \\
+  \softplus(z) &= \ln(1+e^z)\quad\text{(numerically stable in implementation)}, \\
+  \mathrm{LogCap}(n;N_0,\gamma) &= \Bigl(\min\bigl(1,\tfrac{\log_{10}(n+1)}{\log_{10}N_0}\bigr)\Bigr)^{\gamma},
+  \qquad n\ge 0,\; \gamma>0.
+\end{align}
+
+\section{Experience multiplier}
+\begin{equation}
+  M = \mathrm{LogCap}(M_{\mathrm{ch}};\,N_M,\,\gamma_M).
+\end{equation}
+Code: \texttt{experienceMatchThreshold} $\equiv N_M$, \texttt{experienceGamma} $\equiv \gamma_M$.
+
+\section{Batting}
+\subsection{Normalized batting ratios}
+\begin{align}
+  r_a &= \winsor\!\left(\frac{\mathrm{BatAvg}}{\mathrm{Base}^\ast_{\mathrm{avg}}};\ell_b,h_b\right), &
+  r_s &= \winsor\!\left(\frac{\mathrm{SR}}{\mathrm{Base}^\ast_{\mathrm{sr}}};\ell_b,h_b\right).
+\end{align}
+
+\subsection{Weights}
+Batting quality weights $(w_a,w_s)$ normalize \texttt{batWeightAvg}, \texttt{batWeightSr} to sum $1$ (defaults $0.5/0.5$).
+\begin{align}
+  Q_{\mathrm{geom}} &= r_a^{w_a} r_s^{w_s}, &
+  Q_{\mathrm{arith}} &= w_a r_a + w_s r_s, &
+  \bar r &= w_a r_a + w_s r_s.
+\end{align}
+Blend parameter $\beta\in[0,1]$ (\texttt{batGeoWeight}):
+\begin{equation}
+  Q_{\mathrm{bat}} = \beta\,Q_{\mathrm{geom}} + (1-\beta)\,Q_{\mathrm{arith}}.
+\end{equation}
+
+\subsection{Elite tail (batting)}
+Let $\tau_b,s_b,\delta_b,B_{\max}^{(b)}$ be \texttt{batEliteThreshold}, \texttt{batEliteSoftness}, \texttt{batEliteDelta}, \texttt{batEliteMaxBonus}.
+\begin{equation}
+  B_{\mathrm{elite}}^{(b)}
+  = \min\Bigl(B_{\max}^{(b)},\,\max\bigl(0,\,\delta_b\bigl(\softplus\!\bigl(\tfrac{\bar r-\tau_b}{s_b}\bigr)-\softplus(0)\bigr)\Bigr)\Bigr).
+\end{equation}
+Smoothness: $s_b$ in roughly $[0.1,0.2]$ avoids a near-step at $\tau_b$ while preserving separation for large $\bar r$.
+\begin{equation}
+  \mathrm{Bat}_{RE}^{\mathrm{raw}} = R_{pm}\,Q_{\mathrm{bat}}\,\bigl(1+B_{\mathrm{elite}}^{(b)}\bigr).
+\end{equation}
+
+\section{Bowling}
+\subsection{Estimated balls bowled and economy}
+$k_{\mathrm{bw}}$ (\texttt{ballsPerWicketPar}) is the assumed balls per wicket when true balls bowled are unavailable:
+\begin{align}
+  BB &= W\cdot k_{\mathrm{bw}}, &
+  \mathrm{Bowl}_{avg} &=
+  \begin{cases}
+    R_{\mathrm{bwl}}/W, & W>0,\\
+    \mathrm{baseBowlAvg}, & W=0,
+  \end{cases}
+  &
+  \mathrm{Econ} &=
+  \begin{cases}
+    \dfrac{6\,R_{\mathrm{bwl}}}{\max(BB,\varepsilon)}, & BB>0,\\
+    \mathrm{baseEcon}, & BB=0.
+  \end{cases}
+\end{align}
+(Runs per over from estimated $BB$; $\varepsilon$ is \texttt{epsilon}.)
+
+\subsection{Bowling sample shrinkage $\lambda_{bb}$}
+\begin{equation}
+  \lambda_{bb}
+  = \min\Biggl(1,\biggl(\min\Bigl(1,\tfrac{\log_{10}(BB+1)}{\log_{10}B_{\min}}\Bigr)\biggr)^{\gamma_\lambda}\Biggr).
+\end{equation}
+Effective bowling statistics (pull toward baselines when $BB$ is small):
+\begin{align}
+  \mathrm{Bowl}^{\mathrm{eff}}_{avg} &= \lambda_{bb}\,\mathrm{Bowl}_{avg} + (1-\lambda_{bb})\,\mathrm{baseBowlAvg}, \\
+  \mathrm{Econ}^{\mathrm{eff}} &= \lambda_{bb}\,\mathrm{Econ} + (1-\lambda_{bb})\,\mathrm{baseEcon}.
+\end{align}
+
+\subsection{Opportunity $\Sigma$ and workload guard $\omega_\Sigma$}
+Ball-share denominator $D = BB+BF+\varepsilon$:
+\begin{align}
+  \sigma_{\mathrm{ball}} &= \min\Bigl(1,\frac{BB/D}{\rho_{\mathrm{thresh}}}\Bigr), \\
+  \sigma_{\mathrm{wkt}} &=
+  \begin{cases}
+    \min(1,\,W/W_{\mathrm{knee}}), & W>0,\\
+    0, & W=0,
+  \end{cases}
+\end{align}
+with normalized blend weights $(w_b,w_w)$ from \texttt{sigmaBallWeight}, \texttt{sigmaWktWeight}:
+\begin{equation}
+  \Sigma = \min\bigl(1,\,w_b\,\sigma_{\mathrm{ball}} + w_w\,\sigma_{\mathrm{wkt}}\bigr).
+\end{equation}
+\textbf{Workload scaling} (reduces small-career inflation on bowling RE only):
+\begin{equation}
+  \omega_\Sigma = \min\Bigl(1,\frac{BF+BB}{N_{\min}^{\mathrm{wl}}}\Bigr),
+  \qquad
+  \Sigma_{\mathrm{bowl}} = \Sigma\,\omega_\Sigma.
+\end{equation}
+Code: \texttt{bowlingSigmaWorkloadMinBalls} $\equiv N_{\min}^{\mathrm{wl}}$. This is distinct from $B_{\min}$ above. The reference implementation exposes $\Sigma$ and $\Sigma_{\mathrm{bowl}}$ separately in \texttt{WimBreakdown} (\texttt{sigma}, \texttt{sigmaBowl}).
+
+\subsection{Quality ratios and elite tail (bowling)}
+Bowling quality weights $(w_a^{(k)},w_e^{(k)})$ normalize \texttt{bowlWeightAvg}, \texttt{bowlWeightEcon} (defaults $0.5/0.5$):
+\begin{align}
+  q_{\mathrm{avg}} &= \winsor\!\left(\frac{\mathrm{Base}^\ast_{\mathrm{bwl}}}{\max(\mathrm{Bowl}^{\mathrm{eff}}_{avg},1)};\ell_w,h_w\right), \\
+  q_{\mathrm{econ}} &= \winsor\!\left(\frac{\mathrm{Base}^\ast_{\mathrm{econ}}}{\max(\mathrm{Econ}^{\mathrm{eff}},1)};\ell_w,h_w\right), \\
+  \bar q &= w_a^{(k)} q_{\mathrm{avg}} + w_e^{(k)} q_{\mathrm{econ}}.
+\end{align}
+Elite bonus with $(\tau_k,s_k,\delta_k,B_{\max}^{(k)})$ (\texttt{bowlElite*}):
+\begin{equation}
+  B_{\mathrm{elite}}^{(k)}
+  = \min\Bigl(B_{\max}^{(k)},\,\max\bigl(0,\,\delta_k\bigl(\softplus\!\bigl(\tfrac{\bar q-\tau_k}{s_k}\bigr)-\softplus(0)\bigr)\Bigr)\Bigr).
+\end{equation}
+Wickets per match $W_{pm}=W/M_{\mathrm{ch}}$. Par runs-per-wicket scale $R_{pw}^{(f)}$ (\texttt{rpw}):
+\begin{equation}
+  \mathrm{Bowl}_{RE}^{\mathrm{raw}}
+  = \Sigma_{\mathrm{bowl}}\,W_{pm}\,R_{pw}^{(f)}\,\bar q\,\bigl(1+B_{\mathrm{elite}}^{(k)}\bigr).
+\end{equation}
+
+\section{Fielding}\label{sec:field}
+The implementation uses \textbf{two} skills only (catches and run-outs), with equal structural weight $\tfrac12$.
+Per-match rates $\mu_C,\mu_{RO}$ (\texttt{expectedCatchesPerMatch}, \texttt{expectedRunoutsPerMatch}):
+\begin{align}
+  r_C &= \winsor\!\left(\frac{C/M_{\mathrm{ch}}}{\mu_C};\ell_f,h_f\right), &
+  r_{RO} &= \winsor\!\left(\frac{RO/M_{\mathrm{ch}}}{\mu_{RO}};\ell_f,h_f\right), \\
+  Q_{\mathrm{fld}} &= \tfrac12 r_C + \tfrac12 r_{RO}, &
+  M_f &= \mathrm{LogCap}(M_{\mathrm{ch}};\,I_{\min},\,\gamma_f).
+\end{equation}
+Field scale $F_s$ (\texttt{fScale}):
+\begin{equation}
+  \mathrm{Field}_{RE} = M_f\,F_s\,Q_{\mathrm{fld}}.
+\end{equation}
+\textit{Correction vs.\ earlier one-line summaries:} there is no general $\sum_j W_j(\cdots)$ over arbitrary fielding modes in code---only catches and run-outs as above.
+
+\section{Role adjustment and final rating}\label{sec:role}
+Let $\phi=\texttt{roleDisciplinePhi}$. Raw blocks $(B^{\mathrm{raw}},K^{\mathrm{raw}})=(\mathrm{Bat}_{RE}^{\mathrm{raw}},\mathrm{Bowl}_{RE}^{\mathrm{raw}})$.
+\begin{equation}
+  (\mathrm{Bat}_{RE},\mathrm{Bowl}_{RE}) =
+  \begin{cases}
+    (B^{\mathrm{raw}},\,\phi\,K^{\mathrm{raw}}), & \rho=\mathrm{batter},\\
+    (\phi\,B^{\mathrm{raw}},\,K^{\mathrm{raw}}), & \rho=\mathrm{bowler},\\
+    (B^{\mathrm{raw}},\,K^{\mathrm{raw}}), & \rho=\mathrm{allrounder}.
+  \end{cases}
+\end{equation}
+Total raw expectation:
+\begin{equation}
+  \mathrm{RE}_{\mathrm{tot}} = \mathrm{Bat}_{RE}+\mathrm{Bowl}_{RE}+\mathrm{Field}_{RE}.
+\end{equation}
+Legend cap $C_{\mathrm{legend}}$ (\texttt{cLegend}); per-match rating increment $b_m\ge 0$ (\texttt{ratingPerMatchBonus}, default $0.0004$).
+Let $\mathrm{Rating}_{\mathrm{perf}}=M\cdot\min\bigl(1,\mathrm{RE}_{\mathrm{tot}}/C_{\mathrm{legend}}\bigr)$ and $\mathrm{Bonus}_{m}=b_m\cdot\max(0,M_{\mathrm{ch}})$ using the raw career match count from inputs (not the $M_{\ast}=\max(M_{\mathrm{ch}},1)$ used only in rate denominators).
+\begin{equation}
+  \boxed{\;\mathrm{Rating}
+  = \min\Bigl(1,\;\mathrm{Rating}_{\mathrm{perf}}+\mathrm{Bonus}_{m}\Bigr)
+  = \min\Biggl(1,\;M\cdot\min\Bigl(1,\frac{\mathrm{RE}_{\mathrm{tot}}}{C_{\mathrm{legend}}}\Bigr)+b_m\cdot\max(0,M_{\mathrm{ch}})\Biggr)\;}
+\end{equation}
+So $\mathrm{Rating}\in[0,1]$; the performance term alone is $\in[0,M]$.
+
+\section{ICC-style calibration checklist}
+\begin{itemize}
+  \item \textbf{Baselines} $\mathrm{baseAvg},\mathrm{baseSr},\mathrm{baseBowlAvg},\mathrm{baseEcon}$: era/format reference levels for ratio construction.
+  \item \textbf{Winsor bounds} $(\ell_b,h_b)$, $(\ell_w,h_w)$, $(\ell_f,h_f)$: limit tail leverage of single-number ratios.
+  \item \textbf{$B_{\min}$, $\gamma_\lambda$, $k_{\mathrm{bw}}$}: govern trust in bowling sample; $k_{\mathrm{bw}}$ should reflect typical balls/wicket for the format when $BB$ is imputed.
+  \item \textbf{$\rho_{\mathrm{thresh}}$, $W_{\mathrm{knee}}$, $(w_b,w_w)$, $N_{\min}^{\mathrm{wl}}$}: opportunity and workload; tune together so specialists/all-rounders behave sensibly.
+  \item \textbf{Elite $(\tau,s,\delta,B_{\max})$}: separate ``very good'' from ``generational'' without hard kinks.
+  \item \textbf{$C_{\mathrm{legend}}$}: sets the RE level at which the performance term hits its inner cap; primary dial for spread of $\mathrm{Rating}_{\mathrm{perf}}$.
+  \item \textbf{$b_m$}: direct longevity credit per match; with default $0.0004$, $250$ matches add $0.1$ before the outer $\min(1,\cdot)$.
+  \item \textbf{$(\mu_C,\mu_{RO},F_s,\gamma_f,I_{\min})$}: fielding contribution magnitude vs.\ bat/bowl.
+  \item \textbf{$N_M$, $\phi$, $(w_a,w_s)$, $(w_a^{(k)},w_e^{(k)})$, $\varepsilon_\eta$}: experience floor, role cross-discipline shrink, quality-blend priors, numerical floor for $\mathrm{Base}^\ast$.
+\end{itemize}
+
+\section{Known limitations (honesty clause)}
+\begin{itemize}
+  \item No direct \textbf{opposition strength}, venue, or match leverage.
+  \item \textbf{$BB$} is inferred from wickets unless replaced by measured balls bowled in a future input schema.
+  \item \textbf{Same functional form} across formats requires \textbf{re-tuned globals}; the equations do not embed format labels.
+\end{itemize}
+
+\section{Wall chart: single composite $\mathrm{Rating}$}
+\noindent
+Write $M_{\ast}=\max(M_{\mathrm{ch}},1)$, $O=\max(O_{\mathrm{raw}},1)$, $BB=Wk_{\mathrm{bw}}$, $D=BB+BF+\varepsilon$.
+Let $\mathrm{Base}^\ast_{\mathrm{avg}}=\mathrm{Base}^\ast(\mathrm{baseAvg})$ and $\mathrm{Base}^\ast_{\mathrm{sr}}=\mathrm{Base}^\ast(\mathrm{baseSr})$ per \S1.3; similarly $\mathrm{Base}^\ast_{\mathrm{bwl}},\mathrm{Base}^\ast_{\mathrm{econ}}$ for bowling.
+Define batting ratios $r_a=\winsor(R/(O\cdot\mathrm{Base}^\ast_{\mathrm{avg}});\ell_b,h_b)$, $r_s=\winsor((100R/\max(BF,1))/\mathrm{Base}^\ast_{\mathrm{sr}};\ell_b,h_b)$ and $\bar r=w_ar_a+w_sr_s$.
+Let $\lambda_{bb}=\min\bigl(1,(\min(1,\log_{10}(BB+1)/\log_{10}B_{\min}))^{\gamma_\lambda}\bigr)$,
+$\mathrm{Bowl}_{\mathrm{avg}}=R_{\mathrm{bwl}}/W$ if $W{>}0$ else $\mathrm{baseBowlAvg}$,
+$\mathrm{Econ}=6R_{\mathrm{bwl}}/\max(BB,\varepsilon)$ if $BB{>}0$ else $\mathrm{baseEcon}$,
+$\mathrm{Bowl}^{\mathrm{eff}}=\lambda_{bb}\mathrm{Bowl}_{\mathrm{avg}}+(1-\lambda_{bb})\mathrm{baseBowlAvg}$,
+$\mathrm{Econ}^{\mathrm{eff}}=\lambda_{bb}\mathrm{Econ}+(1-\lambda_{bb})\mathrm{baseEcon}$,
+$q_{\mathrm{avg}}=\winsor(\mathrm{Base}^\ast_{\mathrm{bwl}}/\max(\mathrm{Bowl}^{\mathrm{eff}},1);\ell_w,h_w)$,
+$q_{\mathrm{econ}}=\winsor(\mathrm{Base}^\ast_{\mathrm{econ}}/\max(\mathrm{Econ}^{\mathrm{eff}},1);\ell_w,h_w)$,
+$\bar q=w_a^{(k)}q_{\mathrm{avg}}+w_e^{(k)}q_{\mathrm{econ}}$.
+Let $\sigma_{\mathrm{ball}}=\min(1,(BB/D)/\rho_{\mathrm{thresh}})$,
+$\sigma_{\mathrm{wkt}}=\mathbf{1}_{\{W>0\}}\min(1,W/W_{\mathrm{knee}})$,
+$\Sigma=\min(1,w_b\sigma_{\mathrm{ball}}+w_w\sigma_{\mathrm{wkt}})$,
+$\omega_\Sigma=\min(1,(BF+BB)/N_{\min}^{\mathrm{wl}})$,
+$\Sigma_{\mathrm{bowl}}=\Sigma\omega_\Sigma$.
+Role factors $F_{\mathrm{bat}}=\phi$ if $\rho=\mathrm{bowler}$ else $1$, $F_{\mathrm{bwl}}=\phi$ if $\rho=\mathrm{batter}$ else $1$.
+{\footnotesize
+\begin{multline*}
+\boxed{\mathrm{Rating}}
+=\min\Biggl(1,\;\mathrm{LogCap}(M_{\mathrm{ch}};N_M,\gamma_M)\cdot
+\min\Biggl(1,\;\frac{1}{C_{\mathrm{legend}}}\Biggl[
+F_{\mathrm{bat}}\cdot\frac{R}{M_{\ast}}\cdot
+\Bigl(\beta\, r_a^{w_a}r_s^{w_s}+(1-\beta)\bigl(w_ar_a+w_sr_s\bigr)\Bigr)
+\cdot\Biggl(1+
+\min\Bigl(B_{\max}^{(b)},\max\Bigl(0,\delta_b\bigl(\softplus\tfrac{\bar r-\tau_b}{s_b}-\softplus(0)\bigr)\Bigr)\Bigr)\Biggr)
+\\
+{}+F_{\mathrm{bwl}}\cdot
+\Sigma\cdot\min\Bigl(1,\tfrac{BF+BB}{N_{\min}^{\mathrm{wl}}}\Bigr)\cdot
+\frac{W}{M_{\ast}}\cdot R_{pw}^{(f)}\cdot
+\bar q\cdot
+\Biggl(1+
+\min\Bigl(B_{\max}^{(k)},\max\Bigl(0,\delta_k\bigl(\softplus\tfrac{\bar q-\tau_k}{s_k}-\softplus(0)\bigr)\Bigr)\Bigr)\Biggr)
+\\
+{}+\mathrm{LogCap}(M_{\mathrm{ch}};I_{\min},\gamma_f)\cdot F_s\cdot
+\tfrac12\Biggl(
+\winsor\!\Bigl(\frac{C}{M_{\ast}\,\mu_C};\ell_f,h_f\Bigr)+
+\winsor\!\Bigl(\frac{RO}{M_{\ast}\,\mu_{RO}};\ell_f,h_f\Bigr)
+\Biggr)
+\Biggr]\Biggr)
++ b_m\cdot\max(0,M_{\mathrm{ch}})
+\Biggr).
+\end{multline*}
+}
+\noindent
+\textit{Remarks.}
+Substituting the explicit $\winsor$ definitions of $r_a,r_s$ (two occurrences in $Q_{\mathrm{bat}}$ collapse to the same $r_a,r_s$ as in $\bar r$) and expanding $\Sigma$, $\lambda_{bb}$, $\mathrm{Bowl}^{\mathrm{eff}}$, $\mathrm{Econ}^{\mathrm{eff}}$, $q_{\mathrm{avg}}$, and $q_{\mathrm{econ}}$ inline yields a single expression without abbreviations; the display above is the practical ``all operations in one place'' form. Constants $(w_a,w_s)$, $(w_b,w_w)$, $(w_a^{(k)},w_e^{(k)})$ are normalized from the batting/bowling prior weights in \texttt{WimGlobalParams} (\S\S3--4). Here $b_m=\texttt{ratingPerMatchBonus}$; the inner block is $\mathrm{Rating}_{\mathrm{perf}}$, to which $b_m\cdot\max(0,M_{\mathrm{ch}})$ is added before the outer $\min(1,\cdot)$.
+
+\end{document}

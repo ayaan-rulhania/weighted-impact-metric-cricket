@@ -30,6 +30,10 @@ npm run preview
 - Tailwind CSS
 - React Router, KaTeX + react-markdown for the equation reference
 
+## Deploy (Vercel)
+
+The repo includes `vercel.json` with SPA fallback rewrites. Static files under `public/` (including `equation.tex` and `favicon.png`) are copied to `dist/` on build. `prebuild` syncs root `equation.tex` into `public/equation.tex` so the About download stays current.
+
 ## License
 
 See repository files for license terms if applicable.

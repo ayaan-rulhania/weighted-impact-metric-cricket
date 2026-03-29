@@ -1,4 +1,4 @@
-/** Face-on cricket bat mark (matches public/favicon.svg blade, without app frame). */
+/** Face-on cricket bat mark for in-app branding (header sticker). */
 export function CricketBatMark({ className = "h-5 w-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="8.25 4.35 15.5 26.7" fill="none" aria-hidden>

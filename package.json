@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "sync-equation": "cp equation.tex public/equation.tex",
+    "prebuild": "npm run sync-equation",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },
