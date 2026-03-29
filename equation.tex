@@ -34,6 +34,7 @@ $W$ & \texttt{wickets} & Career wickets \\
 $R_{\mathrm{bwl}}$ & \texttt{runsConceded} & Runs conceded bowling \\
 $C$ & \texttt{catches} & Catches (count) \\
 $RO$ & \texttt{runouts} & Run-outs credited (fractional allowed) \\
+ & \texttt{name} & Display only in \texttt{WimPlayerStats}; not used in any equation below. \\
 \hline
 \end{tabular}
 \end{center}
@@ -66,6 +67,15 @@ All ``starred'' baselines use venue/era factors $\eta_V,\eta_E,\eta_O>0$:
   \mathrm{LogCap}(n;N_0,\gamma) &= \Bigl(\min\bigl(1,\tfrac{\log_{10}(n+1)}{\log_{10}N_0}\bigr)\Bigr)^{\gamma},
   \qquad n\ge 0,\; \gamma>0.
 \end{align}
+
+\subsection{Implementation correspondence (\texttt{computeWim})}
+The reference in \texttt{src/lib/wim.ts} follows the equations above with these alignments:
+\begin{itemize}
+  \item \textbf{Match floor for rates.} Define $M_\ast=\max(M_{\mathrm{ch}},1)$. The code uses $M_\ast$ wherever per-match rates appear: $R_{pm}=R/M_\ast$, $W_{pm}=W/M_\ast$, and fielding inputs $C/M_\ast$, $RO/M_\ast$ (consistent with the wall chart in \S9).
+  \item \textbf{Legend denominator.} $\mathrm{RE}_{\mathrm{tot}}/C_{\mathrm{legend}}$ uses $\max(C_{\mathrm{legend}},10^{-9})$ in code to avoid division by zero if misconfigured.
+  \item \textbf{$\lambda_{bb}$ denominator.} The ratio $\log_{10}(BB+1)/\log_{10}B_{\min}$ is evaluated with $\log_{10}(\max(B_{\min},2))$ so $B_{\min}\le 1$ cannot produce a zero denominator under tuning.
+  \item \textbf{Non-negative wickets.} Stored $W$ is clamped to $\max(0,W)$ before $BB$, $\Sigma$, and $W_{pm}$ (consistent with $W\ge 0$ in $\sigma_{\mathrm{wkt}}$).
+\end{itemize}
 
 \section{Experience multiplier}
 \begin{equation}

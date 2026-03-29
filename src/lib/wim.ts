@@ -1,4 +1,4 @@
-/** Implements WIM v5 (see equation.tex). */
+/** Implements WIM v5 (see `equation.tex`, §1 “Implementation correspondence”). */
 
 export function winsor(x: number, low: number, high: number): number {
   return Math.min(high, Math.max(low, x));
@@ -12,7 +12,7 @@ export function baseStar(
   etaO: number,
   etaODenominatorMin: number,
 ): number {
-  const o = Math.max(etaO, Math.max(etaODenominatorMin, 1e-15));
+  const o = Math.max(etaO, etaODenominatorMin);
   return (base * etaV * etaE) / o;
 }
 
@@ -246,7 +246,8 @@ export function computeWim(
   const wpm = wk / matchCount;
 
   const bowlAvg = wk > 0 ? p.runsConceded / wk : g.baseBowlAvg;
-  const econ = BB > 0 ? (6 * Math.max(0, p.runsConceded)) / BB : g.baseEcon;
+  const econ =
+    BB > 0 ? (6 * Math.max(0, p.runsConceded)) / Math.max(BB, g.epsilon) : g.baseEcon;
 
   const rawLam = Math.log10(BB + 1) / Math.log10(Math.max(g.Bmin, 2));
   const lam = Math.min(1, Math.pow(Math.min(1, rawLam), g.bowlingSampleGamma));
