@@ -99,4 +99,16 @@
   .wim-spec-prose .katex {
     @apply text-foreground;
   }
+
+  /* Data page: Mermaid / long code blocks */
+  .wim-data-prose pre {
+    @apply relative mb-6 overflow-x-auto rounded-xl border-2 border-foreground bg-muted/60 p-4 font-mono text-xs font-medium leading-relaxed text-foreground shadow-[4px_4px_0_0_#1E293B];
+  }
+  .wim-data-prose pre code {
+    @apply border-0 bg-transparent p-0 text-[0.8rem] text-foreground;
+  }
+  .wim-data-prose pre:has(.language-mermaid)::before {
+    content: "Mermaid diagram source";
+    @apply mb-3 block font-jakarta text-[0.65rem] font-bold uppercase tracking-widest text-mutedForeground;
+  }
 }
