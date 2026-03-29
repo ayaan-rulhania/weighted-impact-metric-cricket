@@ -55,6 +55,9 @@ export function TopNav() {
           <NavLink to="/data" className={navLinkClass}>
             Data
           </NavLink>
+          <NavLink to="/team" className={navLinkClass}>
+            Team
+          </NavLink>
         </nav>
 
         <span className="min-h-px min-w-0 flex-1" aria-hidden />
