@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: 500;
+    font-style: normal;
+    font-size: 1em;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-background font-jakarta text-foreground antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .dot-grid {
+    background-color: #fffdf5;
+    background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+    background-size: 14px 14px;
+  }
+
+  .stripe-mask {
+    background: repeating-linear-gradient(
+      -45deg,
+      #f1f5f9,
+      #f1f5f9 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  }
+
+  /* About / spec markdown (KaTeX + geometric type) */
+  .wim-spec-prose h1 {
+    @apply mb-6 mt-10 border-b-2 border-foreground pb-2 font-outfit text-2xl font-extrabold text-foreground first:mt-0;
+  }
+  .wim-spec-prose h2 {
+    @apply mb-4 mt-10 border-b-2 border-border pb-1 font-outfit text-xl font-extrabold text-foreground;
+  }
+  .wim-spec-prose h3 {
+    @apply mb-3 mt-8 font-outfit text-base font-extrabold uppercase tracking-wide text-foreground;
+  }
+  .wim-spec-prose p,
+  .wim-spec-prose li {
+    @apply text-sm font-medium leading-relaxed text-foreground;
+  }
+  .wim-spec-prose p {
+    @apply mb-3;
+  }
+  .wim-spec-prose ul {
+    @apply mb-4 list-disc space-y-2 pl-6;
+  }
+  .wim-spec-prose blockquote {
+    @apply mb-6 border-l-4 border-accent bg-quaternary/20 py-3 pl-4 pr-3 font-jakarta text-sm text-foreground shadow-[4px_4px_0_0_#1E293B];
+  }
+  .wim-spec-prose hr {
+    @apply my-8 border-t-2 border-dashed border-border;
+  }
+  .wim-spec-prose table {
+    @apply mb-6 w-full border-collapse overflow-hidden rounded-xl border-2 border-foreground text-left text-sm shadow-[4px_4px_0_0_#1E293B];
+  }
+  .wim-spec-prose thead {
+    @apply bg-muted;
+  }
+  .wim-spec-prose th,
+  .wim-spec-prose td {
+    @apply border border-border px-3 py-2 align-top;
+  }
+  .wim-spec-prose th {
+    @apply font-outfit text-xs font-extrabold uppercase tracking-wider text-foreground;
+  }
+  .wim-spec-prose code {
+    @apply rounded border border-border bg-muted px-1 py-0.5 font-mono text-[0.8rem] text-foreground;
+  }
+  .wim-spec-prose .katex-display {
+    @apply my-4 overflow-x-auto rounded-xl border-2 border-border bg-white/90 px-3 py-3 shadow-[4px_4px_0_0_#E2E8F0];
+  }
+  .wim-spec-prose .katex {
+    @apply text-foreground;
+  }
+}
