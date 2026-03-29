@@ -5,7 +5,6 @@ import AboutPage from "./pages/AboutPage";
 import DataPage from "./pages/DataPage";
 import EnginePage from "./pages/EnginePage";
 import HomePage from "./pages/HomePage";
-import TeamPage from "./pages/TeamPage";
 
 const DOC_TITLE = "WIM Cricket Engine";
 
@@ -26,7 +25,6 @@ export default function App() {
           <Route path="/engine" element={<EnginePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/data" element={<DataPage />} />
-          <Route path="/team" element={<TeamPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AppLayout>
